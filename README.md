@@ -10,7 +10,7 @@ This repository hosts my personal portfolio, where I document my learning journe
 
 You can see the live version of this portfolio by clicking on the following link:
 
-$$\text{[olivervega.github.io]([https://oliv14.github.io](https://github.com/Olivv14/olivervega.github.io))}$$
+$$\text{[olivervega.github.io](https://github.com/Olivv14/olivervega.github.io)}$$
 
 ---
 
