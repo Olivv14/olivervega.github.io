@@ -3,23 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Sprechen</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap');
 :root{
-  --bg:#eef4fb; --ink:#1a2744; --muted:#5b6b86; --card:#fff;
-  --line:#1a2744; --red:#e3350d; --cream:#fff8ee; --hp:#3cbc3c;
-  --gold:#f4c430; --ok:#2f9e44; --bad:#d9443a; --sky:#cfe6f7;
+  --bg:#efe7d6; --ink:#111; --muted:#3a3a3a; --card:#fffdf8;
+  --line:#111; --red:#b11226; --cream:#fffdf8; --hp:#0b6b2b;
+  --gold:#8a6a00; --ok:#0b6b2b; --bad:#b11226; --sky:#efe7d6;
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
-  font-family:Nunito,system-ui,sans-serif; font-size:17px; line-height:1.4}
-body{
-  background:
-    radial-gradient(circle at 12% 8%, #fff 0 18px, transparent 19px),
-    radial-gradient(circle at 88% 12%, #ffe8e4 0 28px, transparent 29px),
-    linear-gradient(180deg, var(--sky) 0 140px, var(--bg) 140px);
-}
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; font-size:17px; line-height:1.4}
+body{background:var(--bg)}
 button,input{font:inherit;color:inherit} button{cursor:pointer}
 .wrap{max-width:430px;margin:0 auto;padding:12px 14px 120px}
 header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
@@ -37,7 +32,7 @@ header.top{display:flex;justify-content:space-between;align-items:flex-start;gap
 .card,.stat,.unit,.step,.choice,.chip,.speak,.search,.face,.explain{
   background:#fff; border:3px solid var(--ink); border-radius:18px;
 }
-.card{padding:14px 14px 16px; margin:10px 0; box-shadow: 0 6px 0 #1a274422}
+.card{padding:14px 14px 16px; margin:10px 0; box-shadow: 0 5px 0 #111}
 .hud{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .stat{padding:10px 12px}
 .stat b{display:block;font-size:1.05rem;font-weight:800}
@@ -46,18 +41,18 @@ h2,h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
 .rowbtns{display:flex;flex-direction:column;gap:8px}
 .btn{border:3px solid var(--ink); border-radius:16px; padding:11px 14px; min-height:46px; font-weight:800; background:#fff; text-align:left}
 .btn.primary{background:var(--red); color:#fff}
-.btn.accent{background:var(--gold); color:var(--ink)}
-.btn.ghost{background:var(--cream)}
+.btn.accent{background:#111; color:#fff}
+.btn.ghost{background:#fffdf8}
 .btn.ok{background:var(--ok);color:#fff}
 .btn.bad{background:var(--bad);color:#fff}
 .btn:active{transform:translateY(2px)}
-.xpbar,.progress,.bar i{height:12px;background:#d5e0ee;border:2px solid var(--ink);border-radius:99px;overflow:hidden;padding:0}
+.xpbar,.progress,.bar i{height:12px;background:#fff;border:2px solid var(--ink);border-radius:99px;overflow:hidden;padding:0}
 .xpbar>i,.progress>i,.bar i b{display:block;height:100%;width:0;background:var(--hp);border-radius:99px}
 .progress{margin:8px 0 12px;border:2px solid var(--ink);height:14px}
 .bars{display:grid;gap:6px;margin:10px 0}
 .bar{display:grid;grid-template-columns:52px 1fr 40px;gap:6px;align-items:center;font-size:.85rem;font-weight:800}
 .lvl{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.72rem;font-weight:800;border:2px solid var(--ink);background:var(--cream)}
-.A11{background:#d7e8ff} .A12{background:#ffe1c8} .A2{background:#d8f3d4} .A2p{background:#fff0b8}
+.A11,.A12,.A2,.A2p{background:#fff;color:#111}
 .world,.overworld{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .node,.unit{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:10px 12px;text-align:left;width:100%;margin:0}
 .n{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:var(--cream);border:2px solid var(--ink)}
@@ -68,8 +63,8 @@ h2,h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
 .bank{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .choice,.chip{padding:12px;text-align:left;min-height:48px;font-weight:800}
 .choice.on{background:var(--cream); box-shadow:inset 0 0 0 3px var(--red)}
-.choice.good{background:#d8f3d4}
-.choice.nope{background:#ffd4d0}
+.choice.good{background:#c8efd0}
+.choice.nope{background:#f5c4c0}
 .build{min-height:58px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;background:var(--cream);border:3px dashed var(--ink);border-radius:16px;margin-top:8px}
 .speak{width:46px;height:46px;border-radius:50%}
 .explain{margin-top:10px;padding:12px;line-height:1.45}
@@ -80,7 +75,7 @@ h2,h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
   padding:8px 8px calc(10px + env(safe-area-inset-bottom));
 }
 .nav button{border:0;background:transparent;color:var(--muted);font-weight:800;font-size:.9rem;padding:10px 4px;border-radius:14px}
-.nav button.on{color:var(--ink); background:var(--cream)}
+.nav button.on{color:#fff; background:#111}
 .flip{min-height:180px;margin:8px 0 12px}
 .flip .inner{position:relative;min-height:180px}
 .face{min-height:180px;padding:16px;display:flex;flex-direction:column;justify-content:center}
@@ -92,11 +87,11 @@ h2,h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
 .step{display:grid;grid-template-columns:40px 1fr;gap:10px;padding:12px;text-align:left}
 .step .n{background:var(--ink);color:#fff}
 .search{width:100%;padding:12px;margin-bottom:8px}
-.item{padding:12px 0;border-bottom:2px solid #dbe4f0}
+.item{padding:12px 0;border-bottom:2px solid #111}
 .tenses{display:grid;gap:4px;margin-top:8px}
 .tenses b{color:var(--red);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
 .badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-.badge{width:28px;height:28px;border-radius:50%;border:3px solid var(--ink);background:#dbe4f0}
+.badge{width:28px;height:28px;border-radius:50%;border:3px solid var(--ink);background:#fff}
 .badge.on{background:var(--gold)}
 .skyline,.hero-bob,.pix{display:none}
 .lv{font-weight:800}
@@ -143,6 +138,10 @@ en:{
   welcome:"Oliver. This is your village.", pick:"How much German do you already have?",
   b0:"Zero. Start at the inn.", b1:"I can say Hallo.", b2:"I can order a coffee.",
   mapBack:"Map", here:"YOU",
+  saveNote:"Progress saves on this phone (Safari). Telegram forgets it. Copy a backup.",
+  copySave:"Copy backup", pasteSave:"Paste backup",
+  copied:"Copied. Save it in Notes.", badSave:"That backup is not valid.",
+  pastePrompt:"Paste your backup here:",
 
 },
 es:{
@@ -171,6 +170,10 @@ es:{
   welcome:"Oliver. Este es tu pueblo.", pick:"Cuanto aleman traes ya?",
   b0:"Cero. Empiezo en la posada.", b1:"Se decir Hallo.", b2:"Pido un cafe.",
   mapBack:"Mapa", here:"TU",
+  saveNote:"El progreso se guarda en este iPhone (Safari). Telegram lo borra. Copia un backup.",
+  copySave:"Copiar backup", pasteSave:"Pegar backup",
+  copied:"Copiado. Guardalo en Notas.", badSave:"Ese backup no vale.",
+  pastePrompt:"Pega aqui tu backup:",
 
 },
 de:{
@@ -198,7 +201,11 @@ de:{
   cont:"Olivers Weg weiter", streak:"Tage in Folge", quest:"Quest: 8 Saetze",
   welcome:"Oliver. Das ist dein Dorf.", pick:"Wie viel Deutsch kannst du schon?",
   b0:"Null. Zur Taverne.", b1:"Ich kann Hallo.", b2:"Ich bestelle Kaffee.",
-  mapBack:"Karte", here:"DU"
+  mapBack:"Karte", here:"DU",
+  saveNote:"Fortschritt bleibt auf diesem iPhone (Safari). Telegram loescht ihn. Backup kopieren.",
+  copySave:"Backup kopieren", pasteSave:"Backup einfuegen",
+  copied:"Kopiert. In Notizen sichern.", badSave:"Backup ungueltig.",
+  pastePrompt:"Backup hier einfuegen:",
 
 }
 };
@@ -308,7 +315,23 @@ const Vmap=Object.fromEntries(V.map(v=>[v.inf,v]));
 
 function blank(){return {xp:0,ui:"en",seen:{},srs:{},q:null,queue:[],idx:0,total:0,locked:false,screen:"home",filter:"all",onboarded:false,floor:0,streak:0,lastDay:"",lastUnit:0};}
 function load(){try{return Object.assign(blank(),JSON.parse(localStorage.getItem(STORE)||"{}"));}catch(e){return blank();}}
-function save(){localStorage.setItem(STORE,JSON.stringify({xp:S.xp,ui:S.ui,seen:S.seen,srs:S.srs,onboarded:S.onboarded,floor:S.floor,streak:S.streak,lastDay:S.lastDay,lastUnit:S.lastUnit}));}
+function payload(){return {xp:S.xp,ui:S.ui,seen:S.seen,srs:S.srs,onboarded:S.onboarded,floor:S.floor,streak:S.streak,lastDay:S.lastDay,lastUnit:S.lastUnit};}
+function save(){localStorage.setItem(STORE,JSON.stringify(payload()));}
+async function exportSave(){
+  const txt=JSON.stringify(payload());
+  try{await navigator.clipboard.writeText(txt); alert(t("copied"));}
+  catch(e){prompt(t("pastePrompt"), txt);}
+}
+function importSave(){
+  const txt=prompt(t("pastePrompt"));
+  if(!txt) return;
+  try{
+    const o=JSON.parse(txt);
+    if(!o||typeof o!=="object") throw 0;
+    S=Object.assign(blank(), o);
+    save(); go("home");
+  }catch(e){alert(t("badSave"));}
+}
 function t(k){return (I18N[S.ui]||I18N.en)[k]||I18N.en[k]||k;}
 function pivot(){return S.ui==="es"?2:1;} // learn via EN unless UI is ES
 function line(v,tense,langIdx){return v[tense][langIdx];}
@@ -440,7 +463,7 @@ function renderHome(){
   const g=lvlStats();
   const bars=["A1.1","A1.2","A2","A2+"].map(l=>{
     const x=g[l]||{n:1,m:0}; const p=Math.round(100*x.m/x.n);
-    const col=l==="A1.1"?"#3d4f5f":l==="A1.2"?"#c45c26":l==="A2"?"#2a5f45":"#c4a35a";
+    const col="var(--hp)";
     return `<div class="bar"><span class="lvl ${LCLS(l)}">${l}</span><i><b style="width:${p}%;background:${col}"></b></i><span>${p}%</span></div>`;
   }).join("");
   const units=UNITS.map((u,i)=>{
@@ -476,11 +499,20 @@ function renderHome(){
       </div>
     </div>
     <div class="overworld">${units}</div>
-    <div class="bars">${bars}</div>`;
+    <div class="bars">${bars}</div>
+    <div class="card">
+      <h2>${t("copySave")}</h2>
+      <p class="lede">${t("saveNote")}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn ghost" id="ex">${t("copySave")}</button>
+        <button class="btn ghost" id="im">${t("pasteSave")}</button>
+      </div>
+    </div>`;
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>setUi(b.dataset.l));
   $("#start").onclick=()=>startSession(false, rec);
     $("#cards").onclick=()=>go("cards");
   $("#steps").onclick=()=>go("steps");
+  $("#ex").onclick=exportSave; $("#im").onclick=importSave;
   app.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>{
     const i=+b.dataset.u; if(!unlocked(i)) return; startSession(false,i);
   });
