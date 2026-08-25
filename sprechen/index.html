@@ -90,6 +90,9 @@ h2,h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
 .item{padding:12px 0;border-bottom:2px solid #111}
 .tenses{display:grid;gap:4px;margin-top:8px}
 .tenses b{color:var(--red);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase}
+.tenses>div{display:flex;align-items:flex-start;gap:8px;margin:6px 0}
+.tenses>div b{flex:0 0 42px}
+.tenses .speak{width:36px;height:36px;flex:0 0 36px;margin-left:auto}
 .badges{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
 .badge{width:28px;height:28px;border-radius:50%;border:3px solid var(--ink);background:#fff}
 .badge.on{background:var(--gold)}
@@ -343,9 +346,32 @@ function lvlStats(){
   const g={}; V.forEach(v=>{g[v.lvl]=g[v.lvl]||{n:0,m:0}; g[v.lvl].n++; g[v.lvl].m+=mastery(v)/4;});
   return g;
 }
+let speakGen=0;
+function deVoice(){
+  try{return speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith("de"))||null;}catch(e){return null;}
+}
 function speak(text){
-  try{speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang="de-DE"; u.rate=.92;
-    const de=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.startsWith("de")); if(de) u.voice=de; speechSynthesis.speak(u);}catch(e){}
+  if(!text) return;
+  const gen=++speakGen;
+  const run=()=>{
+    if(gen!==speakGen) return;
+    try{
+      speechSynthesis.cancel();
+      const u=new SpeechSynthesisUtterance(text);
+      u.lang="de-DE"; u.rate=.92;
+      const de=deVoice(); if(de) u.voice=de;
+      if(gen!==speakGen) return;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  };
+  try{
+    if(!speechSynthesis.getVoices().length){
+      speechSynthesis.onvoiceschanged=run;
+      setTimeout(run,250);
+    } else {
+      setTimeout(run,40);
+    }
+  }catch(e){}
 }
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
 function shuffle(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
@@ -669,9 +695,14 @@ function grade(){
   $("#feed").innerHTML=`<div class="explain"><b>${ok?t("ok"):t("almost")}</b>
     <div class="de" style="font-size:1.18rem;margin-top:6px">${de}</div>
     <div style="margin-top:6px">${v.inf} · ${why}</div></div>`;
-  if(ok){S.xp+=10; save(); beep(true); speak(de);} else {S.queue.push(q); beep(false); speak(de);}
+  if(ok){S.xp+=10; save(); beep(true);} else {S.queue.push(q); beep(false);}
   $("#check").textContent=ok?t("next"):t("againQ");
   $("#check").classList.add(ok?"ok":"bad");
+  const hear=document.createElement("button");
+  hear.className="btn ghost"; hear.id="hearNow"; hear.textContent=t("hear");
+  hear.onclick=()=>speak(de);
+  $("#check").parentNode.appendChild(hear);
+  speak(de);
 }
 function next(){S.queue.shift(); S.idx++; S.locked=false; S.q=S.queue[0]||null; if(!S.q) renderDone(); else renderQ();}
 function renderDone(){
@@ -688,23 +719,27 @@ function renderAtlas(){
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>setUi(b.dataset.l));
   const draw=(f="")=>{
     f=f.trim().toLowerCase();
-    $("#list").innerHTML=V.filter(v=>!f||(v.inf+v.en+v.es+v.now[0]).toLowerCase().includes(f)).map(v=>`
+    const rows=V.map((v,i)=>({v,i})).filter(x=>!f||(x.v.inf+x.v.en+x.v.es+x.v.now[0]).toLowerCase().includes(f));
+    $("#list").innerHTML=rows.map(({v,i})=>`
       <div class="item">
         <div style="display:flex;gap:8px;align-items:center">
           <b class="de" style="font-size:1.2rem;flex:1">${v.inf}</b>
           <span class="lvl ${LCLS(v.lvl)}">${v.lvl}</span>
           <span class="lvl A11">${mastery(v)}/4</span>
-          <button class="speak" data-say="${esc(v.inf)}">🔊</button>
         </div>
         <div class="eshint">${v.en} · ${v.es}</div>
         <div class="tenses">
-          <div><b>now</b> ${v.now[0]}</div>
-          <div><b>past</b> ${v.past[0]}</div>
-          <div><b>fut</b> ${v.fut[0]}</div>
+          <div><b>now</b> ${v.now[0]} <button type="button" class="speak" data-i="${i}" data-t="now">🔊</button></div>
+          <div><b>past</b> ${v.past[0]} <button type="button" class="speak" data-i="${i}" data-t="past">🔊</button></div>
+          <div><b>fut</b> ${v.fut[0]} <button type="button" class="speak" data-i="${i}" data-t="fut">🔊</button></div>
           <div class="eshint">ich ${v.ich} · du ${v.du} · er ${v.er} · ${v.pk==="pret"?"pret. "+v.pret:v.aux+" "+v.part}</div>
         </div>
       </div>`).join("");
-    $("#list").querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
+    $("#list").onclick=e=>{
+      const b=e.target.closest("[data-t]"); if(!b) return;
+      const v=V[+b.dataset.i]; if(!v) return;
+      speak(v[b.dataset.t][0]);
+    };
   };
   draw(); $("#q").oninput=e=>draw(e.target.value); nav();
 }
