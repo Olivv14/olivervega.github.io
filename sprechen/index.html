@@ -95,6 +95,8 @@ h2,h3{margin:0 0 8px;font-size:1.05rem;font-weight:800}
 .badge.on{background:var(--gold)}
 .skyline,.hero-bob,.pix{display:none}
 .lv{font-weight:800}
+.ans{width:100%;padding:14px;border:3px solid var(--ink);border-radius:16px;
+  font-size:1.15rem;font-weight:700;background:#fff;margin-top:10px}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
 
 </style>
@@ -117,10 +119,10 @@ en:{
   today:"Town", town:"Town", steps:"Steps", cards:"Cards", speak:"Train", train:"Train", map:"Dex", dex:"Dex",
   start:"Start speaking", review:"Review weak verbs", cardsCta:"Flashcards due",
   stepsCta:"First 12 steps of German",
-  session:"Today’s session", sessionLede:"8 real lines. Fail → it comes back until you can say it. Same idea in present, spoken past, future.",
+  session:"Today’s session", sessionLede:"You type German from English. No options. Fail → it comes back.",
   due:"due", mastered:"ready to say",
-  what:"What are you saying?", build:"Build the German line.",
-  shift:"Same idea. Which line is spoken past?",
+  what:"What are you saying?", build:"German — type it.",
+  shift:"Say it in German.", sayHint:"Type the German. No list.",
   now:"NOW", past:"YESTERDAY (how people talk)", fut:"TOMORROW",
   check:"Check", hear:"Hear", next:"Next", againQ:"This line again",
   undo:"Undo last", done:"Session closed", again:"Another round", mapBtn:"See the map",
@@ -149,10 +151,10 @@ es:{
   today:"Pueblo", town:"Pueblo", steps:"Bases", cards:"Cartas", speak:"Entreno", train:"Entreno", map:"Dex", dex:"Dex",
   start:"Empezar a hablar", review:"Repasar los débiles", cardsCta:"Flashcards pendientes",
   stepsCta:"Los 12 primeros pasos del alemán",
-  session:"Sesión de hoy", sessionLede:"8 frases reales. Si fallas, vuelve. Presente, pasado hablado, futuro.",
+  session:"Sesión de hoy", sessionLede:"Escribes aleman desde ingles. Sin opciones. Si fallas, vuelve.",
   due:"pendientes", mastered:"listos para la boca",
-  what:"¿Qué estás diciendo?", build:"Arma la frase alemana.",
-  shift:"Misma idea. ¿Cuál es el pasado hablado?",
+  what:"¿Qué estás diciendo?", build:"Alemán — escríbelo.",
+  shift:"Dilo en alemán.", sayHint:"Escribe el alemán. Sin lista.",
   now:"AHORA", past:"AYER (como se habla)", fut:"MAÑANA",
   check:"Comprobar", hear:"Oír", next:"Siguiente", againQ:"Otra vez esta frase",
   undo:"Quitar última", done:"Sesión cerrada", again:"Otra ronda", mapBtn:"Ver el mapa",
@@ -181,10 +183,10 @@ de:{
   today:"Stadt", town:"Stadt", steps:"Schritte", cards:"Karten", speak:"Training", train:"Training", map:"Dex", dex:"Dex",
   start:"Loslegen", review:"Schwache Verben", cardsCta:"Fällige Karten",
   stepsCta:"Die ersten 12 Schritte",
-  session:"Heutige Session", sessionLede:"8 echte Sätze. Fehler kommen zurück. Präsens, gesprochenes Perfekt, Zukunft.",
+  session:"Heutige Session", sessionLede:"Du schreibst Deutsch aus dem Englischen. Keine Optionen.",
   due:"fällig", mastered:"mundfertig",
-  what:"Was sagst du gerade?", build:"Bau den deutschen Satz.",
-  shift:"Dieselbe Idee. Welcher Satz ist die gesprochene Vergangenheit?",
+  what:"Was sagst du gerade?", build:"Deutsch — tippen.",
+  shift:"Sag es auf Deutsch.", sayHint:"Deutsch tippen. Keine Liste.",
   now:"JETZT", past:"GESTERN (gesprochen)", fut:"MORGEN",
   check:"Prüfen", hear:"Hören", next:"Weiter", againQ:"Diesen Satz nochmal",
   undo:"Letztes weg", done:"Session zu", again:"Noch eine Runde", mapBtn:"Zur Karte",
@@ -625,7 +627,7 @@ function startSession(weak=false, unit=null){
   if(S.filter && S.filter!=="all") pool=pool.filter(v=>v.lvl===S.filter);
   if(!pool.length) pool=V;
   const pick=shuffle(pool).slice(0,8);
-  S.queue=pick.flatMap(v=>[{kind:"mean",v},{kind:"build",v,tense:pickTense(v)},{kind:"shift",v}]);
+  S.queue=pick.flatMap(v=>["now","past","fut"].map(tense=>({kind:"say",v,tense})));
   S.idx=0; S.total=S.queue.length; S.locked=false; S.q=S.queue[0]; S.screen="speak";
   renderQ();
 }
@@ -636,85 +638,40 @@ function mark(inf,key){S.seen[inf]=S.seen[inf]||{}; S.seen[inf][key]=true; save(
 function renderQ(){
   if(!S.q){renderDone(); return;}
   const q=S.q,v=q.v, pct=Math.round(100*S.idx/Math.max(1,S.total));
-  let body="";
-  if(q.kind==="mean"){
-    const opts=shuffle([v,...shuffle(V.filter(x=>x.inf!==v.inf)).slice(0,3)]).map(x=>S.ui==="es"?x.es:x.en);
-    body=`<div style="display:flex;gap:8px;align-items:flex-start"><p class="de" style="flex:1">${v.now[0]}</p>
-      <button class="speak" data-say="${esc(v.now[0])}">🔊</button></div>
-      <p class="lede">${t("what")}</p>
-      <div class="choices">${opts.map(o=>`<button class="choice" data-val="${esc(o)}">${o}</button>`).join("")}</div>`;
-  } else if(q.kind==="build"){
-    const de=v[q.tense][0], extra=shuffle(V.filter(x=>x.inf!==v.inf)).slice(0,2).flatMap(x=>tokens(x[q.tense][0]));
-    const bank=shuffle([...tokens(de),...extra.slice(0,3)]);
-    body=`<span class="lvl ${LCLS(v.lvl)}">${v.lvl}</span> <span class="lvl A12">${t(q.tense)}</span>
-      <p class="de" style="font-size:1.15rem;margin-top:8px">${line(v,q.tense,pivot())}</p>
-      <p class="lede">${t("build")}</p>
-      <div class="build" id="built"></div>
-      <div class="bank" id="bank">${bank.map(tok=>`<button class="chip" data-tok="${esc(tok)}">${tok}</button>`).join("")}</div>
-      <button class="btn ghost" id="undo">${t("undo")}</button>`;
-  } else {
-    body=`<p class="lede">${t("shift")}</p>
-      <p class="eshint">${line(v,"now",pivot())}</p>
-      <div class="choices">${[["now",t("now")],["past",t("past")],["fut",t("fut")]].map(([k,l])=>
-        `<button class="choice" data-k="${k}"><small>${l}</small><div class="de" style="font-size:1.12rem">${v[k][0]}</div></button>`).join("")}</div>`;
-  }
-  app.innerHTML=`<div class="qmeta"><button class="btn ghost" id="toMap" style="min-height:36px;padding:6px 10px">${t("mapBack")}</button><span>${S.idx+1}/${S.total} · ${v.inf}</span><span class="lvl ${LCLS(v.lvl)}">${v.lvl}</span></div>
+  const prompt=line(v,q.tense,pivot());
+  const body=`<p class="lede">${t("sayHint")}</p>
+    <p class="de">${esc(prompt)}</p>
+    <input class="ans" id="ans" type="text" enterkeyhint="done" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="…">`;
+  app.innerHTML=`<div class="qmeta"><button class="btn ghost" id="toMap" style="min-height:36px;padding:6px 10px">${t("mapBack")}</button><span>${S.idx+1}/${S.total}</span><span class="lvl ${LCLS(v.lvl)}">${v.lvl}</span></div>
     <div class="progress"><i style="width:${pct}%"></i></div>
     <div class="card">${body}<div id="feed"></div>
       <div style="display:flex;gap:8px;margin-top:14px">
         <button class="btn primary" id="check" style="flex:1">${t("check")}</button>
-        <button class="btn ghost" id="hear">${t("hear")}</button>
       </div></div>`;
-  $("#hear").onclick=()=>speak(q.kind==="build"?v[q.tense][0]:v.now[0]);
-  app.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>speak(b.dataset.say));
-  if(q.kind==="mean"||q.kind==="shift"){
-    app.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{
-      app.querySelectorAll(".choice").forEach(x=>x.classList.remove("on")); b.classList.add("on");
-      q.pick=q.kind==="mean"?b.dataset.val:b.dataset.k;
-    });
-  } else {
-    q.built=[]; const built=$("#built"), bank=$("#bank");
-    const paint=()=>built.innerHTML=q.built.map(x=>`<span class="chip">${x}</span>`).join("");
-    bank.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{q.built.push(ch.dataset.tok); ch.remove(); paint();});
-    $("#undo").onclick=()=>{const tok=q.built.pop(); if(!tok)return;
-      const b=document.createElement("button"); b.className="chip"; b.dataset.tok=tok; b.textContent=tok;
-      b.onclick=()=>{q.built.push(tok); b.remove(); paint();}; bank.appendChild(b); paint();};
-  }
+  const inp=$("#ans");
+  if(inp){ inp.focus(); inp.onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); grade(); } }; }
   $("#check").onclick=grade; const tm=$("#toMap"); if(tm) tm.onclick=()=>{S.q=null;S.queue=[]; go("home");};
   nav();
 }
 function grade(){
   if(S.locked){ next(); return; }
-  const q=S.q,v=q.v; let ok=false, correct="", why="";
-  if(q.kind==="mean"){
-    const right=S.ui==="es"?v.es:v.en; ok=q.pick===right; correct=right; why=`${v.inf} = ${v.en}${S.ui==="en"?`<div class="eshint">${v.es}</div>`:""}`;
-    if(ok) mark(v.inf,"mean");
-  } else if(q.kind==="build"){
-    const de=v[q.tense][0]; ok=norm((q.built||[]).join(" "))===norm(de); correct=de;
-    why=q.tense==="past"?(v.pk==="pret"?`Spoken: ich ${v.pret}.`:`Spoken past = ${v.aux} + ${v.part}.`)
-      :q.tense==="fut"?`Everyday future: present + time, or werden + infinitive.`
-      :`ich ${v.ich} · du ${v.du} · er ${v.er}`;
-    if(S.ui==="en") why+=`<div class="eshint">${v.es}</div>`;
-    if(ok) mark(v.inf,q.tense);
-  } else {
-    ok=q.pick==="past"; correct=v.past[0];
-    why=v.pk==="pret"?`sein / haben / modals stay Präteritum: ich ${v.pret}.`
-      :`Everyone else: Perfekt. ${v.aux} + ${v.part}.`;
-    if(ok) mark(v.inf,"past");
-  }
+  const q=S.q,v=q.v;
+  const de=v[q.tense][0];
+  const typed=($("#ans")&&$("#ans").value)||"";
+  const ok=norm(typed)===norm(de);
+  let why=q.tense==="past"?(v.pk==="pret"?`Spoken: ich ${v.pret}.`:`${v.aux} + ${v.part}.`)
+    :q.tense==="fut"?`Present + time, or werden.`
+    :`ich ${v.ich} · du ${v.du} · er ${v.er}`;
+  if(ok) mark(v.inf,q.tense);
+  if(ok) mark(v.inf,"mean");
   S.locked=true;
+  if($("#ans")) $("#ans").disabled=true;
   $("#feed").innerHTML=`<div class="explain"><b>${ok?t("ok"):t("almost")}</b>
-    <div class="de" style="font-size:1.18rem;margin-top:6px">${correct}</div><div style="margin-top:6px">${why}</div></div>`;
-  if(ok){S.xp+=10; save(); beep(true); speak(correct);} else {S.queue.push(q); beep(false); speak(correct);}
+    <div class="de" style="font-size:1.18rem;margin-top:6px">${de}</div>
+    <div style="margin-top:6px">${v.inf} · ${why}</div></div>`;
+  if(ok){S.xp+=10; save(); beep(true); speak(de);} else {S.queue.push(q); beep(false); speak(de);}
   $("#check").textContent=ok?t("next"):t("againQ");
   $("#check").classList.add(ok?"ok":"bad");
-  if(q.kind==="mean"||q.kind==="shift"){
-    app.querySelectorAll(".choice").forEach(b=>{
-      const val=q.kind==="mean"?b.dataset.val:b.dataset.k;
-      const good=q.kind==="mean"?val===(S.ui==="es"?v.es:v.en):val==="past";
-      if(good) b.classList.add("good"); else if(b.classList.contains("on")) b.classList.add("nope");
-    });
-  }
 }
 function next(){S.queue.shift(); S.idx++; S.locked=false; S.q=S.queue[0]||null; if(!S.q) renderDone(); else renderQ();}
 function renderDone(){
